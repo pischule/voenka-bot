@@ -1,17 +1,22 @@
-from telegram.ext import Updater, CommandHandler
-from telegram import ParseMode
+import os
 import datetime
 import random
+
+from telegram.ext import Updater, CommandHandler
+from telegram import ParseMode
+
 import feedparser
+
 import requests
 import requests_cache
 
+TOKEN = os.getenv('TOKEN')
 
 covid_url = 'https://coronavirus-19-api.herokuapp.com/countries/belarus'
 news_url = 'https://www.mil.by/ru/rss/news/'
 
 requests_cache.install_cache(
-    cache_name='covid_cache', backend='sqlite', expire_after=180)
+    cache_name='cache', backend='sqlite', expire_after=180)
 
 
 def next_voenka():
@@ -70,7 +75,7 @@ class NewsSource:
 
 
 def load_jokes():
-    with open('jokes-02.txt') as f:
+    with open('jokes.txt') as f:
         jokes_text = f.read()
     return jokes_text.split('@@@')
 
@@ -110,7 +115,7 @@ def joke(update, context):
     update.message.reply_text(random_joke(jokes))
 
 
-updater = Updater('', use_context=True)
+updater = Updater(TOKEN, use_context=True)
 
 updater.dispatcher.add_handler(CommandHandler('news', news))
 updater.dispatcher.add_handler(CommandHandler('time', time))
@@ -119,4 +124,3 @@ updater.dispatcher.add_handler(CommandHandler('corona', corona))
 
 updater.start_polling()
 updater.idle()
-
